@@ -1,3 +1,5 @@
+Demo project for transfer file via FTP using JCraft library
+
 # How to build
 
 mvn clean package assembly:single
