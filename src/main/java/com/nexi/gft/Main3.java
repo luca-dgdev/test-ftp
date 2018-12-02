@@ -8,18 +8,18 @@ import com.jcraft.jsch.Session;
 import java.io.*;
 import java.util.Properties;
 
-public class Main2 {
+public class Main3 {
 
-	private static String SFTPHOST;
+	private static String SFTPHOST = "test.rebex.net";
 	private static int SFTPPORT = 22;
-	private static String SFTPUSER;
-	private static String SFTPPASS;
-	private static String SFTPWORKINGDIR = "/home/javauser/TEST.txt";
+	private static String SFTPUSER = "demo";
+	private static String SFTPPASS = "password";
+	private static String SFTPWORKINGDIR = "/TEST.txt";
 
 	public static void main(String[] arg) {
 		if (arg.length != 1) {
 			System.err.println(
-					"usage: java -cp test-ftp-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.nexi.gft.Main2 fileToTransfer");
+					"usage: java -cp test-ftp-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.nexi.gft.Main3 fileToTransfer");
 			System.exit(-1);
 		}
 
@@ -27,21 +27,22 @@ public class Main2 {
 		try {
 
 			Properties prop = new Properties();
-			prop.load(Main2.class.getClassLoader().getResourceAsStream("application.properties"));
-			SFTPHOST = prop.getProperty("host");
-			SFTPUSER = prop.getProperty("user");
-			SFTPPASS = prop.getProperty("password");
+			prop.load(Main3.class.getClassLoader().getResourceAsStream("application.properties"));
+			//SFTPHOST = prop.getProperty("host");
+			//SFTPUSER = prop.getProperty("user");
+			//SFTPPASS = prop.getProperty("password");
 
 			String fileName = arg[0];
 			String user = SFTPUSER;
 			String host = SFTPHOST;
 			String rfile = SFTPWORKINGDIR;
 
+			JSch.setLogger(new MyLogger());
 			JSch jsch = new JSch();
 			Session session = jsch.getSession(user, host, SFTPPORT);
 			session.setPassword(SFTPPASS);
 
-			java.util.Properties config = new java.util.Properties();
+			Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
 			config.put("PreferredAuthentications", "publickey,keyboard-interactive,password");
 			session.setConfig(config);
@@ -156,6 +157,24 @@ public class Main2 {
 			}
 		}
 		return b;
+	}
+
+	public static class MyLogger implements com.jcraft.jsch.Logger {
+		static java.util.Hashtable name=new java.util.Hashtable();
+		static{
+			name.put(new Integer(DEBUG), "DEBUG: ");
+			name.put(new Integer(INFO), "INFO: ");
+			name.put(new Integer(WARN), "WARN: ");
+			name.put(new Integer(ERROR), "ERROR: ");
+			name.put(new Integer(FATAL), "FATAL: ");
+		}
+		public boolean isEnabled(int level){
+			return true;
+		}
+		public void log(int level, String message){
+			System.err.print(name.get(new Integer(level)));
+			System.err.println(message);
+		}
 	}
 
 }
